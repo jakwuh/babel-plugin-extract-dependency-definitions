@@ -1,6 +1,6 @@
 Babel transformer for static dependency injection analysis.
 
-Usage:
+#### Usage:
 
 ```bash
 npm i --save-dev babel-plugin-transform-dependency-injection
