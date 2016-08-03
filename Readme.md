@@ -3,7 +3,7 @@ Babel transformer for static dependency injection analysis.
 Usage:
 
 ```bash
-npm i --save-dev babel-plugin-transform-dependency-injection
+npm i --save-dev babel-transform-dependency-injection
 ```
 
 ```javascript
@@ -11,10 +11,10 @@ npm i --save-dev babel-plugin-transform-dependency-injection
 // .babelrc
 
 {
-    "plugins": ["transform-dependency-injection"],
+    "plugins": ["babel-plugin-transform-dependency-injection"],
     "extra": {
         "transform-dependency-injection": {
-            "output": "./dist/di.json" // default: './di.conf.json'
+            "output": "./src/di.json" // default: './di.conf.json'
         }
     }
 }
@@ -33,10 +33,10 @@ npm i --save-dev babel-plugin-transform-dependency-injection
             query: {
                 optional: ['runtime'],
                 cacheDirectory: true,
-                plugins: ['transform-dependency-injection'],
+                plugins: ['babel-plugin-transform-dependency-injection'],
                 extra: {
                     'transform-dependency-injection': {
-                        output: path.join(__dirname, '../dist/di.json') // default: './di.conf.json'
+                        output: path.join(__dirname, '../src/di.json') // default: './di.conf.json'
                     }
                 }
             }
