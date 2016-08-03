@@ -10,22 +10,33 @@ export default class Visitor {
     }
 
     // noinspection JSMethodCanBeStatic
-    getClassName({id: {name} = {}}) {
+    getClassName({id: {name}}) {
         return name;
     }
 
     // noinspection JSMethodCanBeStatic
-    getMethodName({key: {name} = {}}) {
+    getMethodName({key: {name} = {}} = {}) {
+        return name;
+    }
+
+    // noinspection JSMethodCanBeStatic
+    getDecoratorName({expression: {callee: {name}}}) {
         return name;
     }
 
     getMethodDependencies(definition) {
-        const parameters = definition.value.params;
-        const dependenciesAST = parameters[0];
+        const [dependenciesAST] = definition.value.params;
         if (this.types.isObjectPattern(dependenciesAST)) {
             return omit(this.parseObjectAST(dependenciesAST), RESERVED_DI_NAMES);
         } else {
             return {};
+        }
+    }
+
+    // noinspection JSMethodCanBeStatic
+    assertValidMethodDefinition(methodDefinition, {className}) {
+        if (!methodDefinition) {
+            throw new SyntaxError(`class ${className} has @AutoInject(@AutoProvide) decorator but no '${DEFAULT_UPDATE_METHOD}' method was found`);
         }
     }
 

@@ -16,42 +16,29 @@ const VISIT_MAP = {
 export default class InjectionTraverser {
 
     constructor({types}) {
-        this.types = types;
-        this.visitors = {
-            'class': new ClassVisitor({types}),
-            'method': new MethodVisitor({types})
-        };
+        this.classVisitor = new ClassVisitor({types});
+        this.methodVisitor = new MethodVisitor({types});
     }
 
     visitClassDeclaration(classNode) {
         (classNode.decorators || []).map(decoratorNode => {
-            this.visitClassDecorator(decoratorNode, classNode);
+            this.visitDecorator(this.classVisitor, {decoratorNode, classNode});
         });
     }
 
-    visitClassDecorator(decoratorNode, classNode) {
-        const visitor = this.visitors.class;
-        const className = visitor.getClassName(classNode);
-        const decoratorName = decoratorNode.expression.callee.name;
-        if (VISIT_MAP.hasOwnProperty(decoratorName)) {
-            visitor[VISIT_MAP[decoratorName]]({decoratorNode, decoratorName, classNode, className});
-        }
-    }
-
-    visitMethodDefinition(methodNode, classNode) {
+    visitClassMethodDefinition(classNode, methodNode) {
         (methodNode.decorators || []).map(decoratorNode => {
-            this.visitMethodDecorator(decoratorNode, methodNode, classNode);
+            this.visitDecorator(this.methodVisitor, {decoratorNode, methodNode, classNode});
         });
     }
 
-    visitMethodDecorator(decoratorNode, methodNode, classNode) {
-        const visitor = this.visitors.method;
-        const className = visitor.getClassName(classNode);
-        const methodName = visitor.getMethodName(methodNode);
-        const decoratorName = decoratorNode.expression.callee.name;
-        if (VISIT_MAP.hasOwnProperty(decoratorName)) {
-            const params = {decoratorNode, decoratorName, methodNode, methodName, classNode, className};
-            visitor[VISIT_MAP[decoratorName]](params);
+    // noinspection JSMethodCanBeStatic
+    visitDecorator(visitor, params) {
+        params.className = visitor.getClassName(params.classNode);
+        params.methodName = visitor.getMethodName(params.methodNode);
+        params.decoratorName = visitor.getDecoratorName(params.decoratorNode);
+        if (VISIT_MAP.hasOwnProperty(params.decoratorName)) {
+            visitor[VISIT_MAP[params.decoratorName]](params);
         }
     }
 

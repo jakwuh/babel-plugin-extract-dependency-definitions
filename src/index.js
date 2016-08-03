@@ -11,7 +11,7 @@ export default function test ({Plugin, types}) {
             ClassDeclaration(classNode) {
                 traverser.visitClassDeclaration(classNode);
                 (classNode.body.body || []).map(methodNode => {
-                    traverser.visitMethodDefinition(methodNode, classNode);
+                    traverser.visitClassMethodDefinition(classNode, methodNode);
                 });
             }
         },

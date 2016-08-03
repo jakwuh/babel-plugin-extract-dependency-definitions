@@ -1,19 +1,20 @@
 import Visitor from './Visitor';
-import {addInjectDefinition, addProvideDefinition} from './Inject';
+import {addProvideDefinition} from './Inject';
 
 export default class MethodVisitor extends Visitor {
 
-    visitProvideDecorator({methodNode, methodName, decoratorNode: {expression}, className}) {
-        const [definitionAST, dependenciesAST] = expression.arguments;
-        const definition = this.parseStringAST(definitionAST);
-        const dependencies = this.parseObjectAST(dependenciesAST);
-        addProvideDefinition(definition, dependencies, {name: className}, methodName);
+    visitProvideDecorator(params) {
+        this.visitDecorator(params, {auto: false});
     }
 
-    visitAutoProvideDecorator({methodNode, methodName, decoratorNode: {expression}, className}) {
-        const [definitionAST] = expression.arguments;
+    visitAutoProvideDecorator(params) {
+        this.visitDecorator(params, {auto: true});
+    }
+
+    visitDecorator({methodNode, methodName, decoratorNode: {expression}, className}, {auto}) {
+        const [definitionAST, dependenciesAST] = expression.arguments;
         const definition = this.parseStringAST(definitionAST);
-        const dependencies = this.getMethodDependencies(methodNode);
+        const dependencies = auto ? this.getMethodDependencies(methodNode) : this.parseObjectAST(dependenciesAST);
         addProvideDefinition(definition, dependencies, {name: className}, methodName);
     }
 

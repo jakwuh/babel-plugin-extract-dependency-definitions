@@ -77,7 +77,7 @@ module.exports =
 	            ClassDeclaration: function ClassDeclaration(classNode) {
 	                traverser.visitClassDeclaration(classNode);
 	                (classNode.body.body || []).map(function (methodNode) {
-	                    traverser.visitMethodDefinition(methodNode, classNode);
+	                    traverser.visitClassMethodDefinition(classNode, methodNode);
 	                });
 	            }
 	        },
@@ -133,11 +133,8 @@ module.exports =
 
 	        _classCallCheck(this, InjectionTraverser);
 
-	        this.types = types;
-	        this.visitors = {
-	            'class': new _ClassVisitor2['default']({ types: types }),
-	            'method': new _MethodVisitor2['default']({ types: types })
-	        };
+	        this.classVisitor = new _ClassVisitor2['default']({ types: types });
+	        this.methodVisitor = new _MethodVisitor2['default']({ types: types });
 	    }
 
 	    _createClass(InjectionTraverser, [{
@@ -146,38 +143,28 @@ module.exports =
 	            var _this = this;
 
 	            (classNode.decorators || []).map(function (decoratorNode) {
-	                _this.visitClassDecorator(decoratorNode, classNode);
+	                _this.visitDecorator(_this.classVisitor, { decoratorNode: decoratorNode, classNode: classNode });
 	            });
 	        }
 	    }, {
-	        key: 'visitClassDecorator',
-	        value: function visitClassDecorator(decoratorNode, classNode) {
-	            var visitor = this.visitors['class'];
-	            var className = visitor.getClassName(classNode);
-	            var decoratorName = decoratorNode.expression.callee.name;
-	            if (VISIT_MAP.hasOwnProperty(decoratorName)) {
-	                visitor[VISIT_MAP[decoratorName]]({ decoratorNode: decoratorNode, decoratorName: decoratorName, classNode: classNode, className: className });
-	            }
-	        }
-	    }, {
-	        key: 'visitMethodDefinition',
-	        value: function visitMethodDefinition(methodNode, classNode) {
+	        key: 'visitClassMethodDefinition',
+	        value: function visitClassMethodDefinition(classNode, methodNode) {
 	            var _this2 = this;
 
 	            (methodNode.decorators || []).map(function (decoratorNode) {
-	                _this2.visitMethodDecorator(decoratorNode, methodNode, classNode);
+	                _this2.visitDecorator(_this2.methodVisitor, { decoratorNode: decoratorNode, methodNode: methodNode, classNode: classNode });
 	            });
 	        }
+
+	        // noinspection JSMethodCanBeStatic
 	    }, {
-	        key: 'visitMethodDecorator',
-	        value: function visitMethodDecorator(decoratorNode, methodNode, classNode) {
-	            var visitor = this.visitors.method;
-	            var className = visitor.getClassName(classNode);
-	            var methodName = visitor.getMethodName(methodNode);
-	            var decoratorName = decoratorNode.expression.callee.name;
-	            if (VISIT_MAP.hasOwnProperty(decoratorName)) {
-	                var params = { decoratorNode: decoratorNode, decoratorName: decoratorName, methodNode: methodNode, methodName: methodName, classNode: classNode, className: className };
-	                visitor[VISIT_MAP[decoratorName]](params);
+	        key: 'visitDecorator',
+	        value: function visitDecorator(visitor, params) {
+	            params.className = visitor.getClassName(params.classNode);
+	            params.methodName = visitor.getMethodName(params.methodNode);
+	            params.decoratorName = visitor.getDecoratorName(params.decoratorNode);
+	            if (VISIT_MAP.hasOwnProperty(params.decoratorName)) {
+	                visitor[VISIT_MAP[params.decoratorName]](params);
 	            }
 	        }
 	    }]);
@@ -233,10 +220,13 @@ module.exports =
 	            var expression = _ref.decoratorNode.expression;
 	            var name = _ref.className;
 
-	            var isCallExpression = this.types.isCallExpression(expression);
-	            if (isCallExpression && expression.arguments.length === 1) {
-	                var dependenciesAST = expression.arguments[0];
-	                (0, _Inject.addInjectDefinition)(this.parseObjectAST(dependenciesAST), { name: name });
+	            if (this.isSuitableCallExpression(expression)) {
+	                var _expression$arguments = _slicedToArray(expression.arguments, 1);
+
+	                var dependenciesAST = _expression$arguments[0];
+
+	                var dependencies = this.parseObjectAST(dependenciesAST);
+	                (0, _Inject.addInjectDefinition)(dependencies, { name: name });
 	            }
 	        }
 	    }, {
@@ -245,12 +235,11 @@ module.exports =
 	            var expression = _ref2.decoratorNode.expression;
 	            var name = _ref2.className;
 
-	            var isCallExpression = this.types.isCallExpression(expression);
-	            if (isCallExpression && expression.arguments.length > 0) {
-	                var _expression$arguments = _slicedToArray(expression.arguments, 2);
+	            if (this.isSuitableCallExpression(expression)) {
+	                var _expression$arguments2 = _slicedToArray(expression.arguments, 2);
 
-	                var definitionAST = _expression$arguments[0];
-	                var dependenciesAST = _expression$arguments[1];
+	                var definitionAST = _expression$arguments2[0];
+	                var dependenciesAST = _expression$arguments2[1];
 
 	                var definition = this.parseStringAST(definitionAST);
 	                var dependencies = this.parseObjectAST(dependenciesAST);
@@ -265,12 +254,10 @@ module.exports =
 	            var className = _ref3.className;
 
 	            var methodDefinition = this.findMethodDefinition(classNode.body.body, DEFAULT_UPDATE_METHOD);
-	            if (methodDefinition) {
-	                var dependencies = this.getMethodDependencies(methodDefinition);
-	                (0, _Inject.addInjectDefinition)(dependencies, { name: className });
-	            } else {
-	                this.throwNoUpdateMethodError({ className: className });
-	            }
+	            this.assertValidMethodDefinition(methodDefinition, { className: className });
+
+	            var dependencies = this.getMethodDependencies(methodDefinition);
+	            (0, _Inject.addInjectDefinition)(dependencies, { name: className });
 	        }
 	    }, {
 	        key: 'visitAutoProvideDecorator',
@@ -280,17 +267,15 @@ module.exports =
 	            var className = _ref4.className;
 
 	            var methodDefinition = this.findMethodDefinition(classNode.body.body, DEFAULT_UPDATE_METHOD);
-	            if (methodDefinition) {
-	                var _expression$arguments2 = _slicedToArray(expression.arguments, 1);
+	            this.assertValidMethodDefinition(methodDefinition, { className: className });
 
-	                var definitionAST = _expression$arguments2[0];
+	            var _expression$arguments3 = _slicedToArray(expression.arguments, 1);
 
-	                var definition = this.parseStringAST(definitionAST);
-	                var dependencies = this.getMethodDependencies(methodDefinition);
-	                (0, _Inject.addProvideDefinition)(definition, dependencies, { name: className });
-	            } else {
-	                this.throwNoUpdateMethodError({ className: className });
-	            }
+	            var definitionAST = _expression$arguments3[0];
+
+	            var definition = this.parseStringAST(definitionAST);
+	            var dependencies = this.getMethodDependencies(methodDefinition);
+	            (0, _Inject.addProvideDefinition)(definition, dependencies, { name: className });
 	        }
 	    }, {
 	        key: 'findMethodDefinition',
@@ -303,14 +288,10 @@ module.exports =
 	                return name === _this.getMethodName(method);
 	            });
 	        }
-
-	        // noinspection JSMethodCanBeStatic
 	    }, {
-	        key: 'throwNoUpdateMethodError',
-	        value: function throwNoUpdateMethodError(_ref5) {
-	            var className = _ref5.className;
-
-	            throw new SyntaxError('class ' + className + ' has @AutoInject decorator but no \'' + DEFAULT_UPDATE_METHOD + '\' method was found');
+	        key: 'isSuitableCallExpression',
+	        value: function isSuitableCallExpression(expression) {
+	            return this.types.isCallExpression(expression) && expression.arguments.length > 0;
 	        }
 	    }]);
 
@@ -329,6 +310,8 @@ module.exports =
 	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
+
+	var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
 
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -358,9 +341,7 @@ module.exports =
 	    _createClass(Visitor, [{
 	        key: 'getClassName',
 	        value: function getClassName(_ref2) {
-	            var _ref2$id = _ref2.id;
-	            _ref2$id = _ref2$id === undefined ? {} : _ref2$id;
-	            var name = _ref2$id.name;
+	            var name = _ref2.id.name;
 
 	            return name;
 	        }
@@ -368,22 +349,46 @@ module.exports =
 	        // noinspection JSMethodCanBeStatic
 	    }, {
 	        key: 'getMethodName',
-	        value: function getMethodName(_ref3) {
+	        value: function getMethodName() {
+	            var _ref3 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
 	            var _ref3$key = _ref3.key;
 	            _ref3$key = _ref3$key === undefined ? {} : _ref3$key;
 	            var name = _ref3$key.name;
 
 	            return name;
 	        }
+
+	        // noinspection JSMethodCanBeStatic
+	    }, {
+	        key: 'getDecoratorName',
+	        value: function getDecoratorName(_ref4) {
+	            var name = _ref4.expression.callee.name;
+
+	            return name;
+	        }
 	    }, {
 	        key: 'getMethodDependencies',
 	        value: function getMethodDependencies(definition) {
-	            var parameters = definition.value.params;
-	            var dependenciesAST = parameters[0];
+	            var _definition$value$params = _slicedToArray(definition.value.params, 1);
+
+	            var dependenciesAST = _definition$value$params[0];
+
 	            if (this.types.isObjectPattern(dependenciesAST)) {
 	                return (0, _lodash.omit)(this.parseObjectAST(dependenciesAST), RESERVED_DI_NAMES);
 	            } else {
 	                return {};
+	            }
+	        }
+
+	        // noinspection JSMethodCanBeStatic
+	    }, {
+	        key: 'assertValidMethodDefinition',
+	        value: function assertValidMethodDefinition(methodDefinition, _ref5) {
+	            var className = _ref5.className;
+
+	            if (!methodDefinition) {
+	                throw new SyntaxError('class ' + className + ' has @AutoInject(@AutoProvide) decorator but no \'' + DEFAULT_UPDATE_METHOD + '\' method was found');
 	            }
 	        }
 
@@ -45470,11 +45475,22 @@ module.exports =
 
 	    _createClass(MethodVisitor, [{
 	        key: 'visitProvideDecorator',
-	        value: function visitProvideDecorator(_ref) {
+	        value: function visitProvideDecorator(params) {
+	            this.visitDecorator(params, { auto: false });
+	        }
+	    }, {
+	        key: 'visitAutoProvideDecorator',
+	        value: function visitAutoProvideDecorator(params) {
+	            this.visitDecorator(params, { auto: true });
+	        }
+	    }, {
+	        key: 'visitDecorator',
+	        value: function visitDecorator(_ref, _ref2) {
 	            var methodNode = _ref.methodNode;
 	            var methodName = _ref.methodName;
 	            var expression = _ref.decoratorNode.expression;
 	            var className = _ref.className;
+	            var auto = _ref2.auto;
 
 	            var _expression$arguments = _slicedToArray(expression.arguments, 2);
 
@@ -45482,23 +45498,7 @@ module.exports =
 	            var dependenciesAST = _expression$arguments[1];
 
 	            var definition = this.parseStringAST(definitionAST);
-	            var dependencies = this.parseObjectAST(dependenciesAST);
-	            (0, _Inject.addProvideDefinition)(definition, dependencies, { name: className }, methodName);
-	        }
-	    }, {
-	        key: 'visitAutoProvideDecorator',
-	        value: function visitAutoProvideDecorator(_ref2) {
-	            var methodNode = _ref2.methodNode;
-	            var methodName = _ref2.methodName;
-	            var expression = _ref2.decoratorNode.expression;
-	            var className = _ref2.className;
-
-	            var _expression$arguments2 = _slicedToArray(expression.arguments, 1);
-
-	            var definitionAST = _expression$arguments2[0];
-
-	            var definition = this.parseStringAST(definitionAST);
-	            var dependencies = this.getMethodDependencies(methodNode);
+	            var dependencies = auto ? this.getMethodDependencies(methodNode) : this.parseObjectAST(dependenciesAST);
 	            (0, _Inject.addProvideDefinition)(definition, dependencies, { name: className }, methodName);
 	        }
 	    }]);
