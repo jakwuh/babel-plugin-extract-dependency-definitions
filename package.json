@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-transform-dependency-injection",
-  "version": "5.0.2",
+  "version": "5.0.3",
   "description": "Babel transformer for static dependency injection analysis",
   "main": "index.js",
   "scripts": {
