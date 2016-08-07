@@ -3,7 +3,7 @@ import {getDefinitions} from './Inject';
 import {get as at} from 'lodash';
 import fs from 'fs';
 
-export default function test ({Plugin, types}) {
+export default function({Plugin, types}) {
     const traverser = new InjectionTraverser({types});
 
     return new Plugin('transform-dependency-injection', {

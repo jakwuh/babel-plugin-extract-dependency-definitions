@@ -50,7 +50,6 @@ module.exports =
 	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
-	exports['default'] = test;
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -66,7 +65,7 @@ module.exports =
 
 	var _fs2 = _interopRequireDefault(_fs);
 
-	function test(_ref) {
+	exports['default'] = function (_ref) {
 	    var Plugin = _ref.Plugin;
 	    var types = _ref.types;
 
@@ -87,7 +86,7 @@ module.exports =
 	            _fs2['default'].writeFileSync(customPath || defaultPath, JSON.stringify((0, _Inject.getDefinitions)(), null, 2));
 	        }
 	    });
-	}
+	};
 
 	;
 	module.exports = exports['default'];
