@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-extract-dependency-definitions",
-  "version": "5.0.2",
+  "version": "5.0.7",
   "description": "Babel transformer for static dependency injection analysis",
   "main": "dist/index.es5.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "test": "npm run build && mocha test/spec.js",
     "prepublish": "npm run build && mocha test/spec.js"
   },
-  "author": "jakwuh <jakwuh@yandex-team.ru>",
+  "author": "jakwuh <jakwuh@gmail.ru>",
   "license": "ISC",
   "dependencies": {
     "babel-core": "^5.8.38",
