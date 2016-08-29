@@ -85,7 +85,7 @@ export default class InjectionTraverser {
 
     getDefinitionsAST(definitions) {
         const insertAST = parse(
-            `Object.defineProperty(module.exports, "${EXPORTS_KEY}", {value: ${JSON.stringify(definitions)}});`
+            `Object.defineProperty(exports, "${EXPORTS_KEY}", {value: ${JSON.stringify(definitions)}});`
         );
         return insertAST.program.body[0];
     }

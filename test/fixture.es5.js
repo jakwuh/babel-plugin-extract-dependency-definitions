@@ -127,6 +127,5 @@ Promise.resolve().then(function () {
         return User6;
     })();
 });
-Object.defineProperty(module.exports, "__diDefinitions", { value: { "User1": { "session1": "session1" }, "currentUser2": ["User22.factory", {}], "currentUser": ["User2.customFactory", { "session2": "session2" }], "User3": { "session3": "session3" }, "profileUser": ["User4.factory", { "session4": "session4" }], "pageUser": ["User5.factory#updatePage", { "session5": "session5" }],
-        "footerUser": ["User6.anotherFactory#updateFooter", { "request": "request"
-        }] } });
+Object.defineProperty(exports, "__diDefinitions", { value: { "User1": { "session1": "session1" }, "currentUser2": ["User22.factory", {}], "currentUser": ["User2.customFactory", { "session2": "session2" }], "User3": {
+            "session3": "session3" }, "profileUser": ["User4.factory", { "session4": "session4" }], "pageUser": ["User5.factory#updatePage", { "session5": "session5" }], "footerUser": ["User6.anotherFactory#updateFooter", { "request": "request" }] } });
