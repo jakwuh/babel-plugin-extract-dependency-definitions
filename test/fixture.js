@@ -1,7 +1,7 @@
-function Inject(){}
-function Provide(){}
-function AutoInject(){}
-function AutoProvide(){}
+function Inject(){return function(){}}
+function Provide(){return function(){}}
+function AutoInject(){return function(){}}
+function AutoProvide(){return function(){}}
 
 @Inject({session1: 'session1'})
 class User1 {}
@@ -28,7 +28,7 @@ class User4 {
 
 }
 
-class User5 {
+export class User5 {
 
     @Provide('pageUser', {
         session5: 'session5'
@@ -38,10 +38,12 @@ class User5 {
 
 }
 
-class User6 {
+Promise.resolve().then(() => {
+    class User6 {
 
-    @AutoProvide('footerUser.anotherFactory')
-    updateFooter({definition, request}) {
+        @AutoProvide('footerUser.anotherFactory')
+        updateFooter({definition, request}) {
+        }
+
     }
-
-}
+});

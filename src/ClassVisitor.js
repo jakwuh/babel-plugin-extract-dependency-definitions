@@ -1,5 +1,4 @@
 import Visitor from './Visitor';
-import {addInjectDefinition, addProvideDefinition} from './Inject';
 
 const DEFAULT_UPDATE_METHOD = 'updateDependencies';
 
@@ -9,7 +8,7 @@ export default class ClassVisitor extends Visitor {
         if (this.isSuitableCallExpression(expression)) {
             const [dependenciesAST] = expression.arguments;
             const dependencies = this.parseObjectAST(dependenciesAST);
-            addInjectDefinition(dependencies, {name});
+            this.container.addInjectDefinition(dependencies, {name});
         }
     }
 
@@ -18,7 +17,7 @@ export default class ClassVisitor extends Visitor {
             const [definitionAST, dependenciesAST] = expression.arguments;
             const definition = this.parseStringAST(definitionAST);
             const dependencies = this.parseObjectAST(dependenciesAST);
-            addProvideDefinition(definition, dependencies, {name});
+            this.container.addProvideDefinition(definition, dependencies, {name});
         }
     }
 
@@ -27,7 +26,7 @@ export default class ClassVisitor extends Visitor {
         this.assertValidMethodDefinition(methodDefinition, {className});
 
         const dependencies = this.getMethodDependencies(methodDefinition);
-        addInjectDefinition(dependencies, {name: className});
+        this.container.addInjectDefinition(dependencies, {name: className});
     }
 
     visitAutoProvideDecorator({decoratorNode: {expression}, classNode, className}) {
@@ -37,7 +36,7 @@ export default class ClassVisitor extends Visitor {
         const [definitionAST] = expression.arguments;
         const definition = this.parseStringAST(definitionAST);
         const dependencies = this.getMethodDependencies(methodDefinition);
-        addProvideDefinition(definition, dependencies, {name: className});
+        this.container.addProvideDefinition(definition, dependencies, {name: className});
     }
 
     findMethodDefinition(methods = [], name) {

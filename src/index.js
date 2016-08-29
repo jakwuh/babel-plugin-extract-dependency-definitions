@@ -1,24 +1,20 @@
 import InjectionTraverser from './InjectionTraverser';
-import {getDefinitions} from './Inject';
-import {get as at} from 'lodash';
-import fs from 'fs';
 
 export default function({Plugin, types}) {
-    const traverser = new InjectionTraverser({types});
 
-    return new Plugin('transform-dependency-injection', {
+    return new Plugin('extract-dependency-definitions', {
         visitor: {
-            ClassDeclaration(classNode) {
+            ClassDeclaration(classNode, parent, scope, file) {
+                const traverser = new InjectionTraverser({types});
+                const programNode = file.ast.program;
+
                 traverser.visitClassDeclaration(classNode);
                 (classNode.body.body || []).map(methodNode => {
                     traverser.visitClassMethodDefinition(classNode, methodNode);
                 });
+
+                traverser.exportDefinitions(programNode);
             }
-        },
-        post(file) {
-            const defaultPath = './di.conf.json';
-            const customPath = at(file, 'opts.extra.transform-dependency-injection.output');
-            fs.writeFileSync(customPath || defaultPath, JSON.stringify(getDefinitions(), null, 2));
         }
     });
 

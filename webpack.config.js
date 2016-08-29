@@ -1,4 +1,5 @@
 const path = require('path');
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
 
@@ -8,15 +9,13 @@ module.exports = {
         filename: 'index.es5.js',
         libraryTarget: 'commonjs2'
     },
-    externals: {
-        fs: 'commonjs fs'
-    },
-
+    target: 'node',
     resolve: {
         alias: {
             'di': 'di.js'
         }
     },
+    externals: [nodeExternals()],
     module: {
         loaders: [{
             test: /\.js$/,

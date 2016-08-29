@@ -1,6 +1,4 @@
-/test/
-webpack.config.js
-.babelrc
 /.idea/
 /node_modules/
-
+/test
+/webpack.config.js

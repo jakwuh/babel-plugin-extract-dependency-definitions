@@ -5,21 +5,19 @@ const RESERVED_DI_NAMES = ['event', 'definition', 'diSessionId'];
 
 export default class Visitor {
 
-    constructor({types}) {
+    constructor({types, container}) {
         this.types = types;
+        this.container = container;
     }
 
-    // noinspection JSMethodCanBeStatic
     getClassName({id: {name}}) {
         return name;
     }
 
-    // noinspection JSMethodCanBeStatic
     getMethodName({key: {name} = {}} = {}) {
         return name;
     }
 
-    // noinspection JSMethodCanBeStatic
     getDecoratorName({expression: {callee: {name}}}) {
         return name;
     }
@@ -33,14 +31,12 @@ export default class Visitor {
         }
     }
 
-    // noinspection JSMethodCanBeStatic
     assertValidMethodDefinition(methodDefinition, {className}) {
         if (!methodDefinition) {
             throw new SyntaxError(`class ${className} has @AutoInject(@AutoProvide) decorator but no '${DEFAULT_UPDATE_METHOD}' method was found`);
         }
     }
 
-    // noinspection JSMethodCanBeStatic
     parseAST(ast) {
         return generate(ast).code;
     }
@@ -54,7 +50,7 @@ export default class Visitor {
             const map = {};
             const code = this.parseAST(ast);
             const lets = uniq(code.match(/\w+/g)).map(v => `${v}='${v}'`).join(',');
-            return eval(`let ${lets}; (${code});`);
+            return (function(){return eval(`var ${lets}; (${code});`)})();
         } else {
             return {};
         }

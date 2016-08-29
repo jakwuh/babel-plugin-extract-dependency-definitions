@@ -1,5 +1,4 @@
 import Visitor from './Visitor';
-import {addProvideDefinition} from './Inject';
 
 export default class MethodVisitor extends Visitor {
 
@@ -15,7 +14,7 @@ export default class MethodVisitor extends Visitor {
         const [definitionAST, dependenciesAST] = expression.arguments;
         const definition = this.parseStringAST(definitionAST);
         const dependencies = auto ? this.getMethodDependencies(methodNode) : this.parseObjectAST(dependenciesAST);
-        addProvideDefinition(definition, dependencies, {name: className}, methodName);
+        this.container.addProvideDefinition(definition, dependencies, {name: className}, methodName);
     }
 
 }

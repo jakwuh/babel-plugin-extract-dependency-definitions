@@ -1,9 +1,9 @@
-Babel transformer for static dependency injection analysis.
+Babel transformer for static dependency injection analysis. [![Build Status](https://travis-ci.org/jakwuh/babel-plugin-extract-dependency-definitions.svg?branch=master)](https://travis-ci.org/jakwuh/babel-plugin-extract-dependency-definitions)
 
 #### Usage:
 
 ```bash
-npm i --save-dev babel-plugin-transform-dependency-injection
+npm i --save babel-plugin-extract-dependency-definitions
 ```
 
 ```javascript
@@ -11,12 +11,7 @@ npm i --save-dev babel-plugin-transform-dependency-injection
 // .babelrc
 
 {
-    "plugins": ["transform-dependency-injection"],
-    "extra": {
-        "transform-dependency-injection": {
-            "output": "./src/di.json" // default: './di.conf.json'
-        }
-    }
+    "plugins": ["extract-dependency-definitions"]
 }
 
 /** or */
@@ -25,23 +20,13 @@ npm i --save-dev babel-plugin-transform-dependency-injection
 
 ...
 
-    module: {
-        loaders: [{
-            test: /\.js$/,
-            include: [/** ... */],
-            loader: 'babel',
-            query: {
-                optional: ['runtime'],
-                cacheDirectory: true,
-                plugins: ['transform-dependency-injection'],
-                extra: {
-                    'transform-dependency-injection': {
-                        output: path.join(__dirname, '../src/di.json') // default: './di.conf.json'
-                    }
-                }
-            }
-        }]
-    }
+    loaders: [{
+        test: /\.js$/,
+        loader: 'babel',
+        query: JSON.stringify({
+            plugins: ['extract-dependency-definitions']
+        })
+    }]
 
 ...
 
