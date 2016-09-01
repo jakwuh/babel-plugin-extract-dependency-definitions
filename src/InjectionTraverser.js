@@ -28,14 +28,14 @@ export default class InjectionTraverser {
     }
 
     visitClassDeclaration(classNode) {
-        (classNode.decorators || []).map(decoratorNode => {
-            this.visitDecorator(this.classVisitor, {decoratorNode, classNode});
+        classNode.decorators = (classNode.decorators || []).filter(decoratorNode => {
+            return this.visitDecorator(this.classVisitor, {decoratorNode, classNode});
         });
     }
 
     visitClassMethodDefinition(classNode, methodNode) {
-        (methodNode.decorators || []).map(decoratorNode => {
-            this.visitDecorator(this.methodVisitor, {decoratorNode, methodNode, classNode});
+        methodNode.decorators = (methodNode.decorators || []).filter(decoratorNode => {
+            return this.visitDecorator(this.methodVisitor, {decoratorNode, methodNode, classNode});
         });
     }
 
@@ -45,7 +45,9 @@ export default class InjectionTraverser {
         params.decoratorName = visitor.getDecoratorName(params.decoratorNode);
         if (VISIT_MAP.hasOwnProperty(params.decoratorName)) {
             visitor[VISIT_MAP[params.decoratorName]](params);
+            return false;
         }
+        return true;
     }
 
     addProvideDefinition(definition, dependencies = {}, {name: bundle}, update) {

@@ -30,6 +30,7 @@ describe('babel-plugin-extract-dependency-definitions', function () {
                 currentUser2: ['User22.factory', {}],
                 currentUser: ['User2.customFactory', {session2: 'session2'}],
                 User3: {session3: 'session3'},
+                User5: {},
                 profileUser: ['User4.factory', {session4: 'session4'}],
                 pageUser: ['User5.factory#updatePage', {session5: 'session5'}],
                 footerUser: ['User6.anotherFactory#updateFooter', {request: 'ClientRequest'}]

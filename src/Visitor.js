@@ -18,8 +18,8 @@ export default class Visitor {
         return name;
     }
 
-    getDecoratorName({expression: {callee: {name}}}) {
-        return name;
+    getDecoratorName({expression}) {
+        return expression.name || expression.callee.name;
     }
 
     getMethodDependencies(definition) {
@@ -50,7 +50,7 @@ export default class Visitor {
             const map = {};
             const code = this.parseAST(ast);
             const lets = uniq(code.match(/\w+/g)).map(v => `${v}='${v}'`).join(',');
-            return (function(){return eval(`var ${lets}; (${code});`)})();
+            return (function(){return eval((lets.length ? `var ${lets}; ` : '') + `(${code});`)})();
         } else {
             return {};
         }

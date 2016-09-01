@@ -1,8 +1,3 @@
-function Inject(){return function(){}}
-function Provide(){return function(){}}
-function AutoInject(){return function(){}}
-function AutoProvide(){return function(){}}
-
 @Inject({session1: 'session1'})
 class User1 {}
 
@@ -12,7 +7,7 @@ class User22 {}
 @Provide('currentUser.customFactory', {session2: 'session2'})
 class User2 {}
 
-@AutoInject()
+@AutoInject
 class User3 {
 
     updateDependencies({session3, event: {query: q}}) {
@@ -28,6 +23,7 @@ class User4 {
 
 }
 
+@Inject({})
 export class User5 {
 
     @Provide('pageUser', {
