@@ -32,7 +32,7 @@ describe('babel-plugin-extract-dependency-definitions', function () {
                 User3: {session3: 'session3'},
                 profileUser: ['User4.factory', {session4: 'session4'}],
                 pageUser: ['User5.factory#updatePage', {session5: 'session5'}],
-                footerUser: ['User6.anotherFactory#updateFooter', {request: 'request'}]
+                footerUser: ['User6.anotherFactory#updateFooter', {request: 'ClientRequest'}]
             }
         );
     })

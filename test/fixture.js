@@ -42,7 +42,7 @@ Promise.resolve().then(() => {
     class User6 {
 
         @AutoProvide('footerUser.anotherFactory')
-        updateFooter({definition, request}) {
+        updateFooter({definition, ClientRequest: request}) {
         }
 
     }

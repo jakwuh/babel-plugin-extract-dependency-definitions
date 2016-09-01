@@ -1,5 +1,5 @@
 import generate from 'babel-core/lib/generation'
-import {omit, uniq} from 'lodash';
+import {omit, uniq, invert} from 'lodash';
 
 const RESERVED_DI_NAMES = ['event', 'definition', 'diSessionId'];
 
@@ -25,7 +25,7 @@ export default class Visitor {
     getMethodDependencies(definition) {
         const [dependenciesAST] = definition.value.params;
         if (this.types.isObjectPattern(dependenciesAST)) {
-            return omit(this.parseObjectAST(dependenciesAST), RESERVED_DI_NAMES);
+            return invert(omit(this.parseObjectAST(dependenciesAST), RESERVED_DI_NAMES));
         } else {
             return {};
         }
