@@ -112,4 +112,4 @@ Promise.resolve().then(function () {
 Object.defineProperty(exports, "__diDefinitions", { value: { "User1": { "session1": "session1" }, "currentUser2": ["User22.factory", {}], "currentUser": ["User2.customFactory", { "session2": "session2" }], "User3": {
 
             "session3": "session3" }, "profileUser": ["User4.factory", { "session4": "session4" }], "User5": {},
-        "pageUser": ["User5.factory#updatePage", { "session5": "session5" }], "footerUser": ["User6.anotherFactory#updateFooter", { "request": "ClientRequest" }] } });
+        "pageUser": ["User5.factory#updatePage", { "session5": "session5" }], "footerUser": ["User6.anotherFactory#updateFooter", { "ClientRequest": "ClientRequest" }] } });
