@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-extract-dependency-definitions",
-  "version": "5.0.10",
+  "version": "5.0.11",
   "description": "Babel transformer for static dependency injection analysis",
   "main": "dist/index.es5.js",
   "scripts": {
