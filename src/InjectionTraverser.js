@@ -2,7 +2,7 @@ import ClassVisitor from './ClassVisitor';
 import MethodVisitor from './MethodVisitor';
 import {normalizeDefinition} from 'di';
 import {parse} from 'babylon';
-import {extend, isEmpty} from 'lodash';
+import {isEmpty, isArray} from 'lodash';
 
 const INJECT_DECORATOR = 'Inject';
 const PROVIDE_DECORATOR = 'Provide';
@@ -27,16 +27,34 @@ export default class InjectionTraverser {
         this.methodVisitor = new MethodVisitor({types, container: this});
     }
 
-    visitClassDeclaration(classNode) {
-        classNode.decorators = (classNode.decorators || []).filter(decoratorNode => {
-            return this.visitDecorator(this.classVisitor, {decoratorNode, classNode});
-        });
+    visitClassDeclaration(path) {
+        let decorators = path.get('decorators');
+        if (isArray(decorators)) {
+            decorators.map(path => {
+                let decoratorNode = path.node;
+                let classNode = path.parent;
+                if (!this.visitDecorator(this.classVisitor, {decoratorNode, classNode})) {
+                    path.remove();
+                }
+            })
+        }
     }
 
-    visitClassMethodDefinition(classNode, methodNode) {
-        methodNode.decorators = (methodNode.decorators || []).filter(decoratorNode => {
-            return this.visitDecorator(this.methodVisitor, {decoratorNode, methodNode, classNode});
-        });
+    visitClassMethodDefinition(path, classNode) {
+        let decorators = path.get('decorators');
+        if (isArray(decorators)) {
+            decorators.map(path => {
+                let decoratorNode = path.node;
+                let methodNode = path.parent;
+                if (!this.visitDecorator(this.methodVisitor, {decoratorNode, classNode, methodNode})) {
+                    path.remove();
+                }
+            });
+            if (!path.get('decorators').length) {
+                delete path.node.decorators;
+            }
+
+        }
     }
 
     visitDecorator(visitor, params) {
@@ -64,32 +82,32 @@ export default class InjectionTraverser {
         this.definitions[dependencyId] = dependencies;
     }
 
-    exportDefinitions(programNode) {
-        let id, definitions;
+    exportDefinitions(programPath) {
+        let definitionsPath, definitions;
+        let programNode = programPath.node;
+        let bodyPaths = programPath.get('body');
 
         if (isEmpty(this.definitions)) {
             return;
         }
-        
         if (programNode[EXPORTS_NODE_KEY]) {
-            id = programNode[EXPORTS_NODE_KEY].id;
-            definitions = extend(programNode[EXPORTS_NODE_KEY].definitions, this.definitions);
-            programNode.body[id] = this.getDefinitionsAST(definitions);
+            definitionsPath = programNode[EXPORTS_NODE_KEY].definitionsPath;
+            definitions = programNode[EXPORTS_NODE_KEY].definitions
+            Object.assign(definitions, this.definitions);
+            definitionsPath.replaceWith(this.getDefinitionsAST(definitions));
         } else {
-            id = programNode.body.length;
             definitions = this.definitions;
-            programNode.body.push(this.getDefinitionsAST(definitions));
+            [definitionsPath] = bodyPaths[bodyPaths.length - 1].insertAfter(this.getDefinitionsAST(definitions));
         }
 
-        programNode[EXPORTS_NODE_KEY] = {id, definitions};
+        programNode[EXPORTS_NODE_KEY] = {definitionsPath, definitions};
 
     }
 
     getDefinitionsAST(definitions) {
-        const insertAST = parse(
+        return parse(
             `Object.defineProperty(exports, "${EXPORTS_KEY}", {value: ${JSON.stringify(definitions)}});`
-        );
-        return insertAST.program.body[0];
+        ).program.body[0];
     }
 
 }

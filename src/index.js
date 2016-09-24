@@ -1,21 +1,23 @@
 import InjectionTraverser from './InjectionTraverser';
 
-export default function({Plugin, types}) {
-
-    return new Plugin('extract-dependency-definitions', {
+export default function({types}) {
+    return {
         visitor: {
-            ClassDeclaration(classNode, parent, scope, file) {
-                const traverser = new InjectionTraverser({types});
-                const programNode = file.ast.program;
+            ClassDeclaration: {
+                enter(path, state) {
+                    const traverser = new InjectionTraverser({types});
+                    const programPath = state.file.path;
+                    const classNode = path.node;
+                    
+                    traverser.visitClassDeclaration(path);
+                    
+                    path.get('body.body').map(path => {
+                        traverser.visitClassMethodDefinition(path, classNode);
+                    });
 
-                traverser.visitClassDeclaration(classNode);
-                (classNode.body.body || []).map(methodNode => {
-                    traverser.visitClassMethodDefinition(classNode, methodNode);
-                });
-
-                traverser.exportDefinitions(programNode);
+                    traverser.exportDefinitions(programPath);
+                }
             }
         }
-    });
-
-};
+    };
+}

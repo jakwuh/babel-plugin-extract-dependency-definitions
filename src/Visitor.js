@@ -1,4 +1,4 @@
-import generate from 'babel-core/lib/generation'
+import generate from 'babel-generator';
 import {omit, uniq, zipObject} from 'lodash';
 
 const RESERVED_DI_NAMES = ['event', 'definition', 'diSessionId'];
@@ -23,7 +23,7 @@ export default class Visitor {
     }
 
     getMethodDependencies(definition) {
-        const [dependenciesAST] = definition.value.params;
+        const [dependenciesAST] = definition.params;
         if (this.types.isObjectPattern(dependenciesAST)) {
             const keys = Object.keys(omit(this.parseObjectAST(dependenciesAST), RESERVED_DI_NAMES));
             return zipObject(keys, keys);

@@ -15,6 +15,10 @@ class User3 {
 
 }
 
+class SimpleClass {
+    
+}
+
 @AutoProvide('profileUser')
 class User4 {
 

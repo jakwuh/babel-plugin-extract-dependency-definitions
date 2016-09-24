@@ -1,4 +1,4 @@
-const babel = require('babel');
+const babel = require('babel-core');
 const path = require('path');
 const fs = require('fs');
 const expect = require('chai').expect;
@@ -16,8 +16,11 @@ describe('babel-plugin-extract-dependency-definitions', function () {
         }
 
         const transformedCode = babel.transform(code, {
-            stage: 0,
-            plugins: ['../']
+            presets: ['es2015'],
+            plugins: [
+                './',
+                'transform-decorators-legacy'
+            ]
         }).code;
 
         fs.writeFileSync(fixturePath, transformedCode);
