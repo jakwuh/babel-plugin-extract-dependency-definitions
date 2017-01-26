@@ -27,7 +27,9 @@ describe('babel-plugin-extract-dependency-definitions', function () {
     });
 
     it('should build correct di', function () {
-        const di = require(fixturePath).__diDefinitions;
+        const diExports = require(fixturePath);
+        const di = {};
+        Object.keys(diExports).map(key => Object.assign(di, diExports[key].__diDefinitions));
         expect(di).to.be.eql({
                 User1: {session1: 'session1'},
                 currentUser2: ['User22.factory', {}],

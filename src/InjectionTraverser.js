@@ -82,7 +82,7 @@ export default class InjectionTraverser {
         this.definitions[dependencyId] = dependencies;
     }
 
-    exportDefinitions(programPath) {
+    exportDefinitions(programPath, {className}) {
         let definitionsPath, definitions;
         let programNode = programPath.node;
         let bodyPaths = programPath.get('body');
@@ -92,21 +92,21 @@ export default class InjectionTraverser {
         }
         if (programNode[EXPORTS_NODE_KEY]) {
             definitionsPath = programNode[EXPORTS_NODE_KEY].definitionsPath;
-            definitions = programNode[EXPORTS_NODE_KEY].definitions
+            definitions = programNode[EXPORTS_NODE_KEY].definitions;
             Object.assign(definitions, this.definitions);
-            definitionsPath.replaceWith(this.getDefinitionsAST(definitions));
+            definitionsPath.replaceWith(this.getDefinitionsAST(definitions, {className}));
         } else {
             definitions = this.definitions;
-            [definitionsPath] = bodyPaths[bodyPaths.length - 1].insertAfter(this.getDefinitionsAST(definitions));
+            [definitionsPath] = bodyPaths[bodyPaths.length - 1].insertAfter(this.getDefinitionsAST(definitions, {className}));
         }
 
         programNode[EXPORTS_NODE_KEY] = {definitionsPath, definitions};
 
     }
 
-    getDefinitionsAST(definitions) {
+    getDefinitionsAST(definitions, {className}) {
         return parse(
-            `Object.defineProperty(exports, "${EXPORTS_KEY}", {value: ${JSON.stringify(definitions)}});`
+            `Object.defineProperty(${className}, "${EXPORTS_KEY}", {value: ${JSON.stringify(definitions)}});`
         ).program.body[0];
     }
 

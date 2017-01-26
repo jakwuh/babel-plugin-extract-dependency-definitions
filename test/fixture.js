@@ -1,26 +1,26 @@
 @Inject({session1: 'session1'})
-class User1 {}
+export class User1 {}
 
 @Provide('currentUser2')
-class User22 {}
+export class User22 {}
 
 @Provide('currentUser.customFactory', {session2: 'session2'})
-class User2 {}
+export class User2 {}
 
 @AutoInject
-class User3 {
+export class User3 {
 
     updateDependencies({session3, event: {query: q}}) {
     }
 
 }
 
-class SimpleClass {
+export class SimpleClass {
     
 }
 
 @AutoProvide('profileUser')
-class User4 {
+export class User4 {
 
     updateDependencies({session4, event: {query}}) {
     }
@@ -38,12 +38,10 @@ export class User5 {
 
 }
 
-Promise.resolve().then(() => {
-    class User6 {
+export class User6 {
 
-        @AutoProvide('footerUser.anotherFactory')
-        updateFooter({definition, ClientRequest: request}) {
-        }
-
+    @AutoProvide('footerUser.anotherFactory')
+    updateFooter({definition, ClientRequest: request}) {
     }
-});
+
+}

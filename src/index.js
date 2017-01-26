@@ -8,14 +8,16 @@ export default function({types}) {
                     const traverser = new InjectionTraverser({types});
                     const programPath = state.file.path;
                     const classNode = path.node;
-                    
+                    const className = traverser.classVisitor.getClassName(classNode);
+
                     traverser.visitClassDeclaration(path);
-                    
+
+
                     path.get('body.body').map(path => {
                         traverser.visitClassMethodDefinition(path, classNode);
                     });
 
-                    traverser.exportDefinitions(programPath);
+                    traverser.exportDefinitions(programPath, {className});
                 }
             }
         }

@@ -8,19 +8,19 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var User1 = function User1() {
+var User1 = exports.User1 = function User1() {
     _classCallCheck(this, User1);
 };
 
-var User22 = function User22() {
+var User22 = exports.User22 = function User22() {
     _classCallCheck(this, User22);
 };
 
-var User2 = function User2() {
+var User2 = exports.User2 = function User2() {
     _classCallCheck(this, User2);
 };
 
-var User3 = function () {
+var User3 = exports.User3 = function () {
     function User3() {
         _classCallCheck(this, User3);
     }
@@ -36,11 +36,11 @@ var User3 = function () {
     return User3;
 }();
 
-var SimpleClass = function SimpleClass() {
+var SimpleClass = exports.SimpleClass = function SimpleClass() {
     _classCallCheck(this, SimpleClass);
 };
 
-var User4 = function () {
+var User4 = exports.User4 = function () {
     function User4() {
         _classCallCheck(this, User4);
     }
@@ -71,25 +71,24 @@ var User5 = exports.User5 = function () {
     return User5;
 }();
 
-Promise.resolve().then(function () {
-    var User6 = function () {
-        function User6() {
-            _classCallCheck(this, User6);
+var User6 = exports.User6 = function () {
+    function User6() {
+        _classCallCheck(this, User6);
+    }
+
+    _createClass(User6, [{
+        key: 'updateFooter',
+        value: function updateFooter(_ref4) {
+            var definition = _ref4.definition;
+            var request = _ref4.ClientRequest;
         }
+    }]);
 
-        _createClass(User6, [{
-            key: 'updateFooter',
-            value: function updateFooter(_ref4) {
-                var definition = _ref4.definition;
-                var request = _ref4.ClientRequest;
-            }
-        }]);
+    return User6;
+}();
 
-        return User6;
-    }();
-});
-Object.defineProperty(exports, "__diDefinitions", { value: { "User1": { "session1": "session1" }, "currentUser2": ["User22.factory", {}], "currentUser": ["User2.customFactory", { "session2": "session2" }], "User3": {
+Object.defineProperty(User6, "__diDefinitions", { value: { "User1": { "session1": "session1" }, "currentUser2": ["User22.factory", {}], "currentUser": ["User2.customFactory", { "session2": "session2" }],
 
-            "session3": "session3" }, "profileUser": ["User4.factory", { "session4": "session4" }], "User5": {},
+        "User3": { "session3": "session3" }, "profileUser": ["User4.factory", { "session4": "session4" }], "User5": {}, "pageUser": ["User5.factory#updatePage", { "session5": "session5" }], "footerUser": ["User6.anotherFactory#updateFooter", { "ClientRequest": "ClientRequest" }]
 
-        "pageUser": ["User5.factory#updatePage", { "session5": "session5" }], "footerUser": ["User6.anotherFactory#updateFooter", { "ClientRequest": "ClientRequest" }] } });
+    } });
